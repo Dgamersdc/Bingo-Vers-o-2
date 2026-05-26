@@ -1,0 +1,849 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>Lousa Digital Bingo</title>
+
+<style>
+*{
+  box-sizing:border-box;
+}
+
+body{
+  margin:0;
+  font-family:Arial,sans-serif;
+  background:linear-gradient(135deg,#020617,#0f172a);
+  overflow:hidden;
+}
+
+/* TABELA */
+
+table{
+  width:100vw;
+  height:100vh;
+  border-collapse:separate;
+  border-spacing:8px;
+  table-layout:fixed;
+  padding:20px 20px 130px 20px;
+}
+
+td{
+  text-align:center;
+  vertical-align:middle;
+
+  border-radius:16px;
+
+  background:#f3f4f6;
+
+  color:#0f172a;
+
+  font-size:46px;
+  font-weight:bold;
+}
+
+.letra{
+  width:70px;
+
+  background:linear-gradient(135deg,#2563eb,#06b6d4);
+
+  color:white;
+
+  font-size:58px;
+}
+
+.linha-azul{
+  background:#dbeafe;
+}
+
+.numero{
+  background:linear-gradient(135deg,#facc15,#f97316);
+
+  color:#111827;
+
+  font-size:54px;
+}
+
+/* RODAPÉ */
+
+.rodape{
+  position:fixed;
+
+  left:0;
+  right:0;
+  bottom:18px;
+
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+
+  padding:0 35px;
+
+  z-index:50;
+}
+
+/* ESQUERDA */
+
+.areaEsquerda{
+  display:flex;
+  align-items:center;
+  gap:18px;
+}
+
+#numero{
+  width:220px;
+  height:70px;
+
+  border-radius:16px;
+
+  border:5px solid #2563eb;
+
+  font-size:36px;
+  font-weight:bold;
+
+  text-align:center;
+
+  outline:none;
+}
+
+.bingoBtn{
+  width:140px;
+  height:70px;
+
+  border:none;
+
+  border-radius:16px;
+
+  background:linear-gradient(135deg,#22c55e,#16a34a);
+
+  color:white;
+
+  font-size:32px;
+  font-weight:bold;
+
+  cursor:pointer;
+}
+
+/* CENTRO */
+
+.areaCentro{
+  color:#facc15;
+
+  font-size:26px;
+  font-weight:700;
+
+  display:flex;
+  align-items:center;
+  gap:14px;
+
+  opacity:0.92;
+}
+
+/* DIREITA */
+
+.areaDireita{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+
+  color:white;
+
+  min-width:560px;
+}
+
+.linhaAcumulado{
+  display:flex;
+  align-items:center;
+  gap:10px;
+
+  font-size:20px;
+  font-weight:700;
+
+  opacity:0.95;
+}
+
+#numeroDestaque{
+  color:#facc15;
+
+  font-size:52px;
+  font-weight:900;
+
+  line-height:1;
+}
+
+.linhaValor{
+  margin-top:4px;
+
+  display:flex;
+  align-items:center;
+  gap:10px;
+
+  color:#facc15;
+
+  font-size:19px;
+  font-weight:700;
+
+  opacity:0.9;
+}
+
+.linhaValor input{
+  width:100px;
+  height:40px;
+
+  border-radius:12px;
+
+  border:4px solid #2563eb;
+
+  text-align:center;
+
+  font-size:24px;
+  font-weight:bold;
+}
+
+/* POPUP */
+
+.popup{
+  position:fixed;
+  inset:0;
+
+  background:rgba(0,0,0,0.88);
+
+  color:#facc15;
+
+  display:none;
+
+  align-items:center;
+  justify-content:center;
+
+  font-size:240px;
+  font-weight:900;
+
+  z-index:100;
+
+  text-shadow:0 0 35px rgba(250,204,21,0.9);
+}
+
+/* BINGO */
+
+.bingoShow{
+  position:fixed;
+  inset:0;
+
+  display:none;
+
+  align-items:center;
+  justify-content:center;
+
+  background:rgba(0,0,0,0.9);
+
+  z-index:120;
+
+  color:white;
+
+  font-size:200px;
+  font-weight:900;
+
+  text-shadow:0 0 40px gold;
+}
+
+/* FOGOS */
+
+.fogo{
+  position:absolute;
+
+  width:12px;
+  height:12px;
+
+  background:gold;
+
+  border-radius:50%;
+
+  animation:explodir 1.3s infinite ease-out;
+}
+
+@keyframes explodir{
+
+  0%{
+    transform:scale(0);
+    opacity:1;
+  }
+
+  100%{
+    transform:scale(1);
+    opacity:0;
+
+    box-shadow:
+      90px 0 gold,
+      -90px 0 red,
+      0 90px cyan,
+      0 -90px lime,
+      65px 65px orange,
+      -65px -65px magenta,
+      -65px 65px yellow,
+      65px -65px deepskyblue;
+  }
+}
+</style>
+</head>
+
+<body>
+
+<!-- POPUP -->
+<div class="popup" id="popup"></div>
+
+<!-- BINGO -->
+<div class="bingoShow" id="bingoShow">
+
+  <div class="fogo" style="top:20%; left:20%;"></div>
+
+  <div class="fogo"
+       style="top:25%; left:75%; animation-delay:.2s;">
+  </div>
+
+  <div class="fogo"
+       style="top:70%; left:30%; animation-delay:.4s;">
+  </div>
+
+  <div class="fogo"
+       style="top:65%; left:80%; animation-delay:.6s;">
+  </div>
+
+  BINGO!
+</div>
+
+<!-- TABELA -->
+<table id="tabela"></table>
+
+<!-- RODAPÉ -->
+<div class="rodape">
+
+  <!-- ESQUERDA -->
+  <div class="areaEsquerda">
+
+    <input
+      type="text"
+      id="numero"
+      placeholder="Número"
+    >
+
+    <button
+      class="bingoBtn"
+      onclick="mostrarBingo()"
+    >
+      BINGO
+    </button>
+
+  </div>
+
+  <!-- CENTRO -->
+  <div class="areaCentro">
+
+    Últimas:
+
+    <span id="historico">
+      ---
+    </span>
+
+  </div>
+
+  <!-- DIREITA -->
+  <div class="areaDireita">
+
+    <div class="linhaAcumulado">
+
+      FALTAM
+
+      <span id="numeroDestaque">
+        7
+      </span>
+
+      BOLAS PARA O ACUMULADO
+
+    </div>
+
+    <div class="linhaValor">
+
+      VALOR EM REAIS:
+
+      <input
+        type="number"
+        id="valorAcumuladoInput"
+        value="0"
+        step="10"
+        onchange="atualizarValorManual()"
+      >
+
+    </div>
+
+  </div>
+
+</div>
+
+<script>
+const letras = ["B","I","N","G","O"];
+
+const tabela =
+document.getElementById("tabela");
+
+let historico = [];
+
+let jogadas = [];
+
+let backupAntesReset = null;
+
+let backupAcumuladoAntesReset = null;
+
+let bolasParaAcumulado = 7;
+
+let valorAcumulado = 0;
+
+window.acumuladoPago = false;
+
+let colunas = 15;
+
+/* CRIA TABELA */
+
+for(let i=0;i<5;i++){
+
+  const tr =
+  document.createElement("tr");
+
+  const letraEsq =
+  document.createElement("td");
+
+  letraEsq.textContent =
+  letras[i];
+
+  letraEsq.className = "letra";
+
+  tr.appendChild(letraEsq);
+
+  for(let j=0;j<colunas;j++){
+
+    const td =
+    document.createElement("td");
+
+    td.id =
+    `linha-${i}-coluna-${j}`;
+
+    if(i===1 || i===3){
+      td.classList.add("linha-azul");
+    }
+
+    tr.appendChild(td);
+  }
+
+  const letraDir =
+  document.createElement("td");
+
+  letraDir.textContent =
+  letras[i];
+
+  letraDir.className = "letra";
+
+  tr.appendChild(letraDir);
+
+  tabela.appendChild(tr);
+}
+
+/* LETRA */
+
+function pegarLetra(numero){
+
+  if(numero>=1 && numero<=15) return "B";
+
+  if(numero>=16 && numero<=30) return "I";
+
+  if(numero>=31 && numero<=45) return "N";
+
+  if(numero>=46 && numero<=60) return "G";
+
+  if(numero>=61 && numero<=75) return "O";
+}
+
+/* LINHA */
+
+function pegarLinha(numero){
+
+  if(numero>=1 && numero<=15) return 0;
+
+  if(numero>=16 && numero<=30) return 1;
+
+  if(numero>=31 && numero<=45) return 2;
+
+  if(numero>=46 && numero<=60) return 3;
+
+  if(numero>=61 && numero<=75) return 4;
+}
+
+/* ADICIONAR */
+
+function adicionarNumero(){
+
+  const input =
+  document.getElementById("numero");
+
+  const valor =
+  input.value.trim().toLowerCase();
+
+  /* RESET */
+
+  if(valor==="reset"){
+
+    resetarBingo();
+
+    input.value="";
+
+    input.focus();
+
+    return;
+  }
+
+  /* VOLTAR */
+
+  if(valor==="voltar"){
+
+    desfazerUltima();
+
+    input.value="";
+
+    input.focus();
+
+    return;
+  }
+
+  const numero = Number(valor);
+
+  if(numero<1 || numero>75 || isNaN(numero)){
+
+    input.value="";
+
+    input.focus();
+
+    return;
+  }
+
+  const letra =
+  pegarLetra(numero);
+
+  const linha =
+  pegarLinha(numero);
+
+  const coluna =
+  (numero-1)%15;
+
+  const celula =
+  document.getElementById(
+  `linha-${linha}-coluna-${coluna}`);
+
+  /* NÃO REPETE */
+
+  if(celula.textContent!==""){
+
+    input.value="";
+
+    input.focus();
+
+    return;
+  }
+
+  celula.textContent = numero;
+
+  celula.classList.add("numero");
+
+  const bola =
+  letra + " " + numero;
+
+  mostrarPopup(bola);
+
+  jogadas.push({
+    numero,
+    letra,
+    linha,
+    coluna,
+    bola
+  });
+
+  historico =
+  jogadas
+  .slice(-3)
+  .reverse()
+  .map(j=>j.bola);
+
+  atualizarHistorico();
+
+  atualizarAcumulado();
+
+  input.value="";
+
+  input.focus();
+}
+
+/* HISTORICO */
+
+function atualizarHistorico(){
+
+  document.getElementById(
+  "historico").textContent =
+
+  historico.length
+  ? historico.join(" | ")
+  : "---";
+}
+
+/* VOLTAR */
+
+function desfazerUltima(){
+
+  /* RESTAURA RESET */
+
+  if(
+    jogadas.length===0 &&
+    backupAntesReset &&
+    backupAntesReset.length>0
+  ){
+
+    jogadas=[...backupAntesReset];
+
+    backupAntesReset=null;
+
+    jogadas.forEach(j=>{
+
+      const celula =
+      document.getElementById(
+      `linha-${j.linha}-coluna-${j.coluna}`);
+
+      celula.textContent =
+      j.numero;
+
+      celula.classList.add("numero");
+    });
+
+    historico =
+    jogadas
+    .slice(-3)
+    .reverse()
+    .map(j=>j.bola);
+
+    atualizarHistorico();
+
+    /* RESTAURA ACUMULADO */
+
+    if (backupAcumuladoAntesReset) {
+
+      bolasParaAcumulado =
+      backupAcumuladoAntesReset.bolasParaAcumulado;
+
+      valorAcumulado =
+      backupAcumuladoAntesReset.valorAcumulado;
+
+      window.acumuladoPago =
+      backupAcumuladoAntesReset.acumuladoPago;
+
+      document.getElementById(
+      "numeroDestaque").textContent =
+      bolasParaAcumulado;
+
+      document.getElementById(
+      "valorAcumuladoInput").value =
+      valorAcumulado;
+
+      backupAcumuladoAntesReset = null;
+    }
+
+    return;
+  }
+
+  if(jogadas.length===0) return;
+
+  const ultima =
+  jogadas.pop();
+
+  const celula =
+  document.getElementById(
+  `linha-${ultima.linha}-coluna-${ultima.coluna}`);
+
+  celula.textContent="";
+
+  celula.classList.remove("numero");
+
+  historico =
+  jogadas
+  .slice(-3)
+  .reverse()
+  .map(j=>j.bola);
+
+  atualizarHistorico();
+
+  /* VOLTA CONTADOR */
+
+  if(bolasParaAcumulado < 7){
+    bolasParaAcumulado++;
+  }
+
+  /* DESFAZ +10 */
+
+  if(
+    window.acumuladoPago &&
+    bolasParaAcumulado === 1
+  ){
+
+    valorAcumulado -= 10;
+
+    window.acumuladoPago = false;
+  }
+
+  document.getElementById(
+  "numeroDestaque").textContent =
+  bolasParaAcumulado;
+
+  document.getElementById(
+  "valorAcumuladoInput").value =
+  valorAcumulado;
+}
+
+/* POPUP */
+
+function mostrarPopup(texto){
+
+  const popup =
+  document.getElementById("popup");
+
+  popup.textContent = texto;
+
+  popup.style.display = "flex";
+
+  setTimeout(()=>{
+
+    popup.style.display = "none";
+
+  },3000);
+}
+
+/* RESET */
+
+function resetarBingo(){
+
+  backupAntesReset=[...jogadas];
+
+  backupAcumuladoAntesReset = {
+    bolasParaAcumulado: bolasParaAcumulado,
+    valorAcumulado: valorAcumulado,
+    acumuladoPago: window.acumuladoPago
+  };
+
+  historico=[];
+
+  jogadas=[];
+
+  atualizarHistorico();
+
+  for(let i=0;i<5;i++){
+
+    for(let j=0;j<15;j++){
+
+      const celula =
+      document.getElementById(
+      `linha-${i}-coluna-${j}`);
+
+      celula.textContent="";
+
+      celula.classList.remove("numero");
+    }
+  }
+
+  bolasParaAcumulado = 7;
+
+  window.acumuladoPago = false;
+
+  document.getElementById(
+  "numeroDestaque").textContent =
+  bolasParaAcumulado;
+
+  document.getElementById(
+  "popup").style.display = "none";
+
+  document.getElementById(
+  "bingoShow").style.display = "none";
+}
+
+/* ACUMULADO */
+
+function atualizarAcumulado(){
+
+  if(bolasParaAcumulado>0){
+    bolasParaAcumulado--;
+  }
+
+  if(
+    bolasParaAcumulado===0 &&
+    !window.acumuladoPago
+  ){
+
+    valorAcumulado += 10;
+
+    window.acumuladoPago = true;
+  }
+
+  document.getElementById(
+  "numeroDestaque").textContent =
+  bolasParaAcumulado;
+
+  document.getElementById(
+  "valorAcumuladoInput").value =
+  valorAcumulado;
+}
+
+/* VALOR */
+
+function atualizarValorManual(){
+
+  const input =
+  document.getElementById(
+  "valorAcumuladoInput");
+
+  valorAcumulado =
+  Number(input.value) || 0;
+}
+
+/* BINGO */
+
+function mostrarBingo(){
+
+  const tela =
+  document.getElementById(
+  "bingoShow");
+
+  tela.style.display="flex";
+
+  setTimeout(()=>{
+
+    tela.style.display="none";
+
+  },5000);
+}
+
+/* ENTER */
+
+document
+.getElementById("numero")
+.addEventListener("keydown",
+function(e){
+
+  if(e.key==="Enter"){
+    adicionarNumero();
+  }
+});
+
+/* FOCO */
+
+window.onload = function(){
+
+  document
+  .getElementById("numero")
+  .focus();
+};
+</script>
+
+</body>
+</html>
